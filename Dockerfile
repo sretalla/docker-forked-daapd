@@ -1,51 +1,90 @@
-FROM buildpack-deps:xenial
-MAINTAINER Kevin Eye <kevineye@gmail.com>
+FROM alpine:edge
 
-RUN apt-get update \
- && apt-get install -qy build-essential git autotools-dev autoconf libtool gettext gawk gperf \
-                        antlr3 libantlr3c-dev libconfuse-dev libunistring-dev libsqlite3-dev \
-                        libavcodec-dev libavformat-dev libavfilter-dev libswscale-dev libavutil-dev \
-                        libasound2-dev libmxml-dev libgcrypt11-dev libavahi-client-dev zlib1g-dev \
-                        libevent-dev libjson-c-dev libgnutls-dev libprotobuf-c-dev \
-                        libcurl4-openssl-dev libplist-dev libpulse-dev avahi-daemon
+RUN apk --no-cache add --virtual=deps1 \
+        alsa-lib-dev \
+        autoconf \
+        automake \
+        avahi-dev \
+        bash \
+        bsd-compat-headers \
+        build-base \
+        confuse-dev \
+        curl \
+        curl-dev \
+        ffmpeg-dev \
+        file \
+        git \
+        gnutls-dev \
+        gperf \
+        json-c-dev \
+        libevent-dev \
+        libgcrypt-dev \
+        libplist-dev \
+        libsodium-dev \
+        libtool \
+        libunistring-dev \
+        openjdk7-jre-base \
+        protobuf-c-dev \
+        sqlite-dev \
+ && apk add --no-cache --virtual=deps2 --repository http://nl.alpinelinux.org/alpine/edge/testing \
+        libantlr3c-dev \
+        mxml-dev \
+        pulseaudio-dev \
 
-RUN mkdir -p /tmp/spotify \
- && curl -o /tmp/spotify_tar.gz -L https://developer.spotify.com/download/libspotify/libspotify-12.1.51-Linux-x86_64-release.tar.gz \
- && tar xvf /tmp/spotify_tar.gz -C /tmp/spotify --strip-components=1 \
- && cd /tmp/spotify \
- && make install prefix=/usr
- 
-RUN git clone https://github.com/ejurgensen/forked-daapd.git /tmp/forked-daapd \
+ && apk add --no-cache \
+        avahi \
+        confuse \
+        dbus \
+        ffmpeg \
+        json-c \
+        libcurl \
+        libevent \
+        libgcrypt \
+        libplist \
+        libsodium \
+        libunistring \
+        protobuf-c \
+        sqlite \
+        sqlite-libs \
+ && apk add --no-cache --repository http://nl.alpinelinux.org/alpine/edge/testing \
+        libantlr3c \
+        mxml \
+        pulseaudio-libs \
+
+ && curl -L -o /tmp/antlr-3.4-complete.jar http://www.antlr3.org/download/antlr-3.4-complete.jar \
+ && echo '#!/bin/bash' > /usr/local/bin/antlr3 \
+ && echo 'exec java -cp /tmp/antlr-3.4-complete.jar org.antlr.Tool "$@"' >> /usr/local/bin/antlr3 \
+ && chmod 775 /usr/local/bin/antlr3 \
+
+ && cd /tmp \
+ && git clone https://github.com/ejurgensen/forked-daapd.git \
  && cd /tmp/forked-daapd \
- && autoreconf -i
-
-RUN cd /tmp/forked-daapd \
+ 
+ && autoreconf -i \
  && ./configure \
       --enable-itunes \
       --enable-mpd \
       --enable-lastfm \
-      --enable-spotify \
       --enable-chromecast \
       --with-pulseaudio \
-      --prefix=/app \
-      --sysconfdir=/etc \
-      --localstatedir=/var \
  && make \
- && make install
+ && make install \
 
-RUN cp /etc/forked-daapd.conf /etc/forked-daapd.conf.orig \
- && sed -i -e 's/\(uid.*=\).*//g' /etc/forked-daapd.conf \
- && sed -i s#"ipv6 = yes"#"ipv6 = no"#g /etc/forked-daapd.conf \
- && sed -i s#/srv/music#/music#g /etc/forked-daapd.conf \
- && sed -i s#/var/cache/forked-daapd/songs3.db#/config/db/songs3.db#g /etc/forked-daapd.conf \
- && sed -i s#/var/cache/forked-daapd/cache.db#/config/db/cache.db#g /etc/forked-daapd.conf \
- && sed -i s#/var/log/forked-daapd.log#/dev/stdout#g /etc/forked-daapd.conf \
- && sed -i "/db_path\ =/ s/# *//" /etc/forked-daapd.conf \
- && sed -i "/cache_path\ =/ s/# *//" /etc/forked-daapd.conf \
- && mv /etc/forked-daapd.conf /etc/forked-daapd.conf.default
+ && apk del --purge deps1 deps2 \
+ && rm -rf /usr/local/bin/antlr3 /tmp/* \
 
-ADD daapd.sh /daapd
+ && cd /usr/local/etc \
+ && sed -i -e 's/\(uid.*=.*\)/uid = "root"/g' forked-daapd.conf \
+ && sed -i s#"ipv6 = yes"#"ipv6 = no"#g forked-daapd.conf \
+ && sed -i s#/srv/music#/music#g forked-daapd.conf \
+ && sed -i s#/usr/local/var/cache/forked-daapd/songs3.db#/config/cache/songs3.db#g forked-daapd.conf \
+ && sed -i s#/usr/local/var/cache/forked-daapd/cache.db#/config/cache/cache.db#g forked-daapd.conf \
+ && sed -i s#/usr/local/var/log/forked-daapd.log#/dev/stdout#g forked-daapd.conf \
+ && sed -i "/db_path\ =/ s/# *//" forked-daapd.conf \
+ && sed -i "/cache_path\ =/ s/# *//" forked-daapd.conf
 
 VOLUME /config /music
+
+ADD daapd.sh /daapd
 
 CMD /daapd

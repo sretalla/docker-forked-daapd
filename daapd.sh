@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-rm -rf /var/run/dbus
+rm -rf /var/run
 mkdir -p /var/run/dbus
 dbus-uuidgen --ensure
 sleep 1
@@ -8,10 +8,7 @@ dbus-daemon --system
 
 avahi-daemon --daemonize --no-chroot
 
-[[ ! -f /config/forked-daapd.conf ]] && cp /etc/forked-daapd.conf.default /config/forked-daapd.conf
-[[ ! -L /etc/forked-daapd.conf && -f /etc/forked-daapd.conf ]] && rm /etc/forked-daapd.conf
-[[ ! -L /etc/forked-daapd.conf ]] && ln -s /config/forked-daapd.conf /etc/forked-daapd.conf
+mkdir -p /config/cache
+[[ ! -f /config/forked-daapd.conf ]] && cp /usr/local/etc/forked-daapd.conf /config/forked-daapd.conf
 
-rm -rf /daapd-pidfolder
-mkdir -p /config/db /daapd-pidfolder
-exec /app/sbin/forked-daapd -f -P /daapd-pidfolder/forked-daapd.pid
+exec forked-daapd -f -c /config/forked-daapd.conf -P /var/run/forked-daapd.pid
