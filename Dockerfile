@@ -4,6 +4,7 @@ RUN apk --no-cache add --virtual=deps1 \
         alsa-lib-dev \
         autoconf \
         automake \
+        cmake \
         avahi-dev \
         bash \
         bsd-compat-headers \
@@ -29,8 +30,6 @@ RUN apk --no-cache add --virtual=deps1 \
  && apk add --no-cache --virtual=deps2 --repository http://nl.alpinelinux.org/alpine/edge/testing \
         libantlr3c-dev \
         mxml-dev \
-        pulseaudio-dev \
-
  && apk add --no-cache \
         avahi \
         confuse \
@@ -46,33 +45,32 @@ RUN apk --no-cache add --virtual=deps1 \
         protobuf-c \
         sqlite \
         sqlite-libs \
+        openssl \
  && apk add --no-cache --repository http://nl.alpinelinux.org/alpine/edge/testing \
         libantlr3c \
         mxml \
-        pulseaudio-libs \
-
  && curl -L -o /tmp/antlr-3.4-complete.jar http://www.antlr3.org/download/antlr-3.4-complete.jar \
  && echo '#!/bin/bash' > /usr/local/bin/antlr3 \
  && echo 'exec java -cp /tmp/antlr-3.4-complete.jar org.antlr.Tool "$@"' >> /usr/local/bin/antlr3 \
  && chmod 775 /usr/local/bin/antlr3 \
-
+ && cd /tmp \
+ && git clone https://github.com/warmcat/libwebsockets.git \
+ && cd /tmp/libwebsockets \
+ && cmake ./ \
+ && make install \
  && cd /tmp \
  && git clone https://github.com/ejurgensen/forked-daapd.git \
  && cd /tmp/forked-daapd \
- 
  && autoreconf -i \
  && ./configure \
       --enable-itunes \
       --enable-mpd \
       --enable-lastfm \
       --enable-chromecast \
-      --with-pulseaudio \
  && make \
  && make install \
-
  && apk del --purge deps1 deps2 \
  && rm -rf /usr/local/bin/antlr3 /tmp/* \
-
  && cd /usr/local/etc \
  && sed -i -e 's/\(uid.*=.*\)/uid = "root"/g' forked-daapd.conf \
  && sed -i s#"ipv6 = yes"#"ipv6 = no"#g forked-daapd.conf \
@@ -86,5 +84,3 @@ RUN apk --no-cache add --virtual=deps1 \
 VOLUME /config /music
 
 ADD daapd.sh /daapd
-
-CMD /daapd
