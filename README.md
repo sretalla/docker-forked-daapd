@@ -2,7 +2,7 @@
 
 [forked-daapd](https://ejurgensen.github.io/forked-daapd/) is a DAAP (iTunes), MPD (Music Player Daemon) and RSP (Roku) media server with support for AirPlay devices/speakers, Apple Remote (and compatibles), MPD clients, Chromecast, network streaming, internet radio and LastFM.
 
-Play iTunes, and local music to multiple AirPlay, Chromecast, pulseaudio, and local speakers controlled by the Apple Remote app or MPD clients.
+Play iTunes, and local music to multiple AirPlay, Chromecast, and local speakers controlled by the Apple Remote app or MPD clients.
 
 ## Examples
 
@@ -10,7 +10,7 @@ Play iTunes, and local music to multiple AirPlay, Chromecast, pulseaudio, and lo
         --name daapd \
         --net host \
         -v /path/to/daapd/config:/config
-        -v /pat/to/your/music:/music
+        -v /path/to/your/music:/music
         -v /etc/localtime:/etc/localtime:ro
         kevineye/daapd
 
