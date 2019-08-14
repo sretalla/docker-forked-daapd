@@ -12,7 +12,7 @@ Play iTunes, and local music to multiple AirPlay, Chromecast, and local speakers
         -v /path/to/daapd/config:/config
         -v /path/to/your/music:/music
         -v /etc/localtime:/etc/localtime:ro
-        kevineye/daapd
+        sretalla/docker-forked-daapd
 
 A default config file will be written to the config volume which can be edited.
 
