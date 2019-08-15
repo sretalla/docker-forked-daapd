@@ -18,6 +18,17 @@ Play iTunes, and local music to multiple AirPlay, Chromecast, and local speakers
         -v /etc/localtime:/etc/localtime:ro
         sretalla/docker-forked-daapd
 
+Or for the example of Hass.io integration with the forked-daapd custom component
+
+    docker run -d \
+        --name daapd \
+        --net host \
+        -v /usr/share/hassio/homeassistant/forked-daapd/config:/config
+        -v /usr/share/hassio/homeassistant/forked-daapd:/music
+        -v /etc/localtime:/etc/localtime:ro
+        sretalla/docker-forked-daapd
+
+
 A default config file will be written to the config volume which can be edited.
 
 This container (if used as recommended with host networking) will publish port 3689 to the host for the web UI.
