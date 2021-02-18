@@ -1,0 +1,11 @@
+image: sretalla/docker-forked-daapd:latest
+manifests:
+  - image: sretalla/docker-forked-daapd:amd64
+    platform:
+      architecture: amd64
+      os: linux
+  - image: sretalla/docker-forked-daapd:arm32v7
+    platform:
+      architecture: arm
+      os: linux
+      variant: v7
