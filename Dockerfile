@@ -49,9 +49,9 @@ RUN apk --no-cache add --virtual=deps1 \
  && apk add --no-cache --repository http://nl.alpinelinux.org/alpine/edge/testing \
         libantlr3c \
         mxml \
- && curl -L -o /tmp/antlr-3.5.2-complete.jar http://www.antlr3.org/download/antlr-3.5.2-complete.jar \
+ && curl -L -o /tmp/antlr-3.4-complete.jar http://www.antlr3.org/download/antlr-3.4-complete.jar \
  && echo '#!/bin/bash' > /usr/local/bin/antlr3 \
- && echo 'exec java -cp /tmp/antlr-3.5.2-complete.jar org.antlr.Tool "$@"' >> /usr/local/bin/antlr3 \
+ && echo 'exec java -cp /tmp/antlr-3.4-complete.jar org.antlr.Tool "$@"' >> /usr/local/bin/antlr3 \
  && chmod 775 /usr/local/bin/antlr3 \
  && cd /tmp \
  && git clone https://github.com/warmcat/libwebsockets.git \
