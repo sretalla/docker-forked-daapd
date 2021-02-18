@@ -5,8 +5,7 @@ RUN apk --no-cache add --virtual=deps1 \
         autoconf \
         automake \
         cmake \
-        libgcc1 \
-        libgcc-5-dev \
+        g++ \
         avahi-dev \
         bash \
         bsd-compat-headers \
